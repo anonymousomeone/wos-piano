@@ -190,7 +190,7 @@ function getNote(note_str)
 	elseif octave == 5 then
 		return A5[note]
 	elseif octave == 6 then
-		return A6[note}
+		return A6[note]
 	end
 end
 
