@@ -219,8 +219,6 @@ for i, event in furryelise do
 		seconds = 1 / thingy;
 	end
 	
-	print(seconds);
-	
 	task.wait(seconds);
 	
 	if next(event.data) == nil then 
@@ -230,9 +228,6 @@ for i, event in furryelise do
 	for i, v in event.data do
 		local midi_note = getMidi(v);
 		local note = getNote(midi_note);
-		
-		print(v);
-		print(midi_note);
 		
 		note:Trigger();
 	end
