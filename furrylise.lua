@@ -5,6 +5,7 @@ local A2 = {};
 local A3 = {};
 local A4 = {}; -- octave increment starts at A instead of C
 local A5 = {};
+local A6 = {};
 
 -- format: [note][sharp?][octave]
 local MIDI_TABLE = { -- ⚠⚠⚠ index offset!!! (index 1 = midi 0)
@@ -188,6 +189,8 @@ function getNote(note_str)
 		return A4[note]
 	elseif octave == 5 then
 		return A5[note]
+	elseif octave == 6 then
+		return A6[note}
 	end
 end
 
@@ -196,6 +199,7 @@ for note, part in PORT_TABLE do
 	A3[note] = GetPartFromPort(GetPartFromPort(3, part), "Speaker");
 	A4[note] = GetPartFromPort(GetPartFromPort(4, part), "Speaker");
 	A5[note] = GetPartFromPort(GetPartFromPort(5, part), "Speaker");
+	A6[note] = GetPartFromPort(GetPartFromPort(6, part), "Speaker");
 end
 
 local music = {"E", "D", "C", "D", "E", "E", "E",
