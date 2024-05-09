@@ -1,99 +1,74 @@
-use std::{fs, io::Write};
+use midly::num::u28;
+use midly::Format;
+use midly::Header;
 use midly::Smf;
+use midly::TrackEvent;
 
-struct MidiEvent {
-    delta: u16,
-    on: Vec<u8>,
-    off: Vec<u8>
-}
+use std::fs;
+use std::iter::Peekable;
 
-impl MidiEvent {
-    pub fn new() -> MidiEvent {
-        MidiEvent { delta: 0, on: vec![], off: vec![] }
-    }
+#[derive(Debug)]
+struct Track<'a> {
+    delta: u28,
+    index: usize,
+    events: Vec<TrackEvent<'a>>,
 }
 
 fn main() {
-    let bytes = fs::read("fnaf.mid").unwrap();
-    let smf = Smf::parse(&bytes).unwrap();
+    let bytes = fs::read("sonydivers.mid").unwrap();
+    let mut smf = Smf::parse(&bytes).unwrap();
 
-    let mut fin = String::new();
-    let mut midi = MidiEvent::new();
+    let events: Vec<TrackEvent> = parse(smf.tracks);
 
-    println!("speed: {:?}", smf.header.timing);
-    println!("format: {:?}", smf.header.format);
+    let header = Header {
+        format: Format::Parallel,
+        timing: smf.header.timing,
+    };
 
-    let mut i = 0;
+    let mut t: Vec<Vec<TrackEvent>> = Vec::new();
+    let mut result = Vec::new();
 
-    for event in smf.tracks.get(0).unwrap() {
-        
-        // println!("{:?}", event);
+    t.push(events);
 
-        let msg = match event.kind {
-            midly::TrackEventKind::Midi { channel, message } => message,
-            _ => continue,
-        };
+    let _ = midly::write(&header, &t, &mut result);
 
-        if event.delta != 0 {
-            fin += &dump(midi);
-            
-            midi = MidiEvent::new();
-            midi.delta = event.delta.as_int().try_into().unwrap();
-        }
+    let _ = fs::write("./out.midi", result);
 
-        match msg {
-            midly::MidiMessage::NoteOff { key, vel } => {
-                midi.off.push(key.as_int());
-            },
-            midly::MidiMessage::NoteOn { key, vel } => {
-                midi.on.push(key.as_int());
-            }
-            _ => continue,
-        };
-
-    }
-
-    fin += &dump(midi);
-
-    // println!("{}", fin);
-
-    let mut file = fs::File::create("r.txt").unwrap();
-    file.write_all(fin.as_bytes()).unwrap();
 }
 
-fn dump(event: MidiEvent) -> String {
-    let mut res = String::new();
-    let on = event.on;
-    let off = event.off;
+fn parse(tracks_raw: Vec<Vec<TrackEvent>>) -> Vec<TrackEvent> {
+    let mut result: Vec<TrackEvent> = Vec::new();
 
+    let mut tracks: Vec<Track> = Vec::new();
 
-    res += &("{d=".to_owned() + &event.delta.to_string() + ",o={");
-    for i in 0..on.len() {
-        let k = on.get(i).unwrap();
-        
-        res += &k.to_string();
-        
-        if i + 1 == on.len() {
-            res += "";
-        } else {
-            res += ",";
+    for track in tracks_raw {
+        let mut events = Vec::new();
+        for event in track {
+            events.push(event);
         }
-    }
-    res += "},f={";
 
-    for i in 0..off.len() {
-        let k = off.get(i).unwrap();
-        
-        res += &k.to_string();
-        
-        if i + 1 == off.len() {
-            res += "";
-        } else {
-            res += ",";
-        }
+        let track = Track {
+            delta: 0.into(),
+            index: 0,
+            events
+        };
+
+        tracks.push(track);
     }
 
-    res += "}},";
+    let parsing = true;
+    
+    while parsing {
 
-    return res;
+
+    }
+
+    result
+}
+
+/**
+ * returns index
+ */
+fn get_next_event(tracks: &Vec<Track>) -> usize {
+    
 }

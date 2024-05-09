@@ -1,0 +1,3 @@
+local disk = GetPartFromPort(1, "Disk");
+
+-- ...
