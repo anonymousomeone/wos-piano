@@ -1,5 +1,5 @@
 use std::{fs, io::Write};
-use midly::Smf;
+use midly::{num::u28, Smf};
 
 struct MidiEvent {
     delta: u16,
@@ -14,7 +14,7 @@ impl MidiEvent {
 }
 
 fn main() {
-    let bytes = fs::read("fnaf.mid").unwrap();
+    let bytes = fs::read("./midis/Beethoven_Virus.mid").unwrap();
     let smf = Smf::parse(&bytes).unwrap();
 
     let mut fin = String::new();
@@ -24,6 +24,7 @@ fn main() {
     println!("format: {:?}", smf.header.format);
 
     let mut i = 0;
+    let mut non_note_delta = u28::from(0);
 
     for event in smf.tracks.get(0).unwrap() {
         
@@ -34,18 +35,29 @@ fn main() {
             _ => continue,
         };
 
-        if event.delta != 0 {
+        let mut isnote: bool = false;
+
+        match msg {
+            midly::MidiMessage::NoteOff { key, vel } => isnote = true,
+            midly::MidiMessage::NoteOn { key, vel } => isnote = true,
+            _ => non_note_delta += event.delta,
+        }
+
+        if event.delta != 0 && isnote {
             fin += &dump(midi);
             
             midi = MidiEvent::new();
-            midi.delta = event.delta.as_int().try_into().unwrap();
+            midi.delta = (event.delta + non_note_delta).as_int().try_into().unwrap();
+            non_note_delta = 0.into();
         }
 
         match msg {
             midly::MidiMessage::NoteOff { key, vel } => {
+                if midi.off.contains(&key.as_int()) { continue; }
                 midi.off.push(key.as_int());
             },
             midly::MidiMessage::NoteOn { key, vel } => {
+                if midi.on.contains(&key.as_int()) { continue; }
                 midi.on.push(key.as_int());
             }
             _ => continue,
@@ -67,7 +79,7 @@ fn dump(event: MidiEvent) -> String {
     let off = event.off;
 
 
-    res += &("{d=".to_owned() + &event.delta.to_string() + ",o={");
+    res += &("{".to_owned() + &event.delta.to_string() + ",{");
     for i in 0..on.len() {
         let k = on.get(i).unwrap();
         
@@ -79,7 +91,7 @@ fn dump(event: MidiEvent) -> String {
             res += ",";
         }
     }
-    res += "},f={";
+    res += "},{";
 
     for i in 0..off.len() {
         let k = off.get(i).unwrap();
