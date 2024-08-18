@@ -327,6 +327,14 @@ function isSharp(note)
 	return string.find(note, "#");
 end
 
+function GetPortByID(ports, id)
+    for i, port in ports do
+        if port.PortID == id then
+            return port
+        end
+    end
+end
+
 -- init speakers
 local index = 1;
 for note, part in PORT_TABLE do
@@ -350,33 +358,24 @@ for note, part in PORT_TABLE do
 		i=1;
 		s=GetPartsFromPort(GetPortByID(GetPartsFromPort(6, "Port"), index), "Speaker");
 	};
-	A7[note] = {
-		i=1;
-		s=GetPartsFromPort(GetPortByID(GetPartsFromPort(7, "Port"), index), "Speaker");
-	};
+    A7[note] = {
+        i=1;
+        s=GetPartsFromPort(port, "Speaker");
+    };
 
-	LA1[note] = GetPartFromPort(GetPortsByID(GetPartsFromPort(11, "Port"), index), "Light");
-	LA2[note] = GetPartFromPort(GetPortsByID(GetPartsFromPort(12, "Port"), index), "Light");
-	LA3[note] = GetPartFromPort(GetPortsByID(GetPartsFromPort(13, "Port"), index), "Light");
-	LA4[note] = GetPartFromPort(GetPortsByID(GetPartsFromPort(14, "Port"), index), "Light");
-	LA5[note] = GetPartFromPort(GetPortsByID(GetPartsFromPort(15, "Port"), index), "Light");
-	LA6[note] = GetPartFromPort(GetPortsByID(GetPartsFromPort(16, "Port"), index), "Light");
-	LA7[note] = GetPartFromPort(GetPortsByID(GetPartsFromPort(17, "Port"), index), "Light");
-	LA8[note] = GetPartFromPort(GetPortsByID(GetPartsFromPort(18, "Port"), index), "Light");
+	LA1[note] = GetPartFromPort(GetPortByID(GetPartsFromPort(11, "Port"), index), "Light");
+	LA2[note] = GetPartFromPort(GetPortByID(GetPartsFromPort(12, "Port"), index), "Light");
+	LA3[note] = GetPartFromPort(GetPortByID(GetPartsFromPort(13, "Port"), index), "Light");
+	LA4[note] = GetPartFromPort(GetPortByID(GetPartsFromPort(14, "Port"), index), "Light");
+	LA5[note] = GetPartFromPort(GetPortByID(GetPartsFromPort(15, "Port"), index), "Light");
+	LA6[note] = GetPartFromPort(GetPortByID(GetPartsFromPort(16, "Port"), index), "Light");
+	LA7[note] = GetPartFromPort(GetPortByID(GetPartsFromPort(17, "Port"), index), "Light");
+	LA8[note] = GetPartFromPort(GetPortByID(GetPartsFromPort(18, "Port"), index), "Light");
 	--LA9[note] = GetPartFromPort(GetPartFromPort(19, part), "Light");
 
     index += 1;
 end
 ----
-function GetPortByID(ports, id)
-    for i, port in ports do
-        if port.PortID == id then
-            return port
-        end
-    end
-end
-
-
 
 function resetLights()
 	for _, midi_note in MIDI_TABLE do
